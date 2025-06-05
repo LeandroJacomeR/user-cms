@@ -1,13 +1,13 @@
 package com.united.coders.cmsuser.domain.model;
 
-import java.util.List;
+import java.util.Set;
 
 public class Role {
     private Long id;
     private String name;
-    private List<Permission> permissions;
+    private Set<Permission> permissions;
 
-    public Role(Long id, String name, List<Permission> permissions) {
+    public Role(Long id, String name, Set<Permission> permissions) {
         this.id = id;
         this.name = name;
         this.permissions = permissions;
@@ -29,11 +29,11 @@ public class Role {
         this.name = name;
     }
 
-    public List<Permission> getPermissions() {
+    public Set<Permission> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<Permission> permissions) {
+    public void setPermissions(Set<Permission> permissions) {
         this.permissions = permissions;
     }
 }
