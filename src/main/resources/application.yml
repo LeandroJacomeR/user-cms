@@ -1,17 +1,24 @@
 spring:
   application:
     name: cms-user
-
   datasource:
-    url: ${DB_URL}
+    url: jdbc:postgresql://localhost:5432/user-cms
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
-    jpa:
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 5
+    pa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
       hibernate:
         ddl-auto: update
       show-sql: true
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
+          format_sql: true
+          default_schema: public
+jwt:
+  secret: ${KEYSECRET_SECURITY:eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.nZU_gPcMXkWpkCUpJceSxS7lSickF0tTImHhAR949Z-Nt69LgW8G6lid-mqd9B579tYM8C4FN2jdhR2VRMsjtA}
+  expiration: ${EXPIRE_DAYS_SECURITY:3600000}
