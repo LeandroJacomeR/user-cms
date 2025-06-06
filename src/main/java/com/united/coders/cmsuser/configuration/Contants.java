@@ -14,6 +14,7 @@ public class Contants {
     public static final String USER_NOT_FOUND_MESSAGE = "Usuario no encontrado en el sistema.";
     public static final String EMAIL_INVALID_FORMAT_MESSAGE = "El email proporcionado no tiene un formato válido.";
     public static final String PASSWORD_INVALID_FORMAT_MESSAGE = "La contraseña proporcionada no tiene un formato válido.";
+    public static final String BAD_CREDENTIALS_MESSAGE = "Credenciales incorrectas.";
 
     public static final String SWAGGER_TITLE_MESSAGE = "User API United Coders";
     public static final String SWAGGER_DESCRIPTION_MESSAGE = "User microservice";

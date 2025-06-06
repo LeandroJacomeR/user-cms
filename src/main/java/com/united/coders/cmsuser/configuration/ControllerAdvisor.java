@@ -8,6 +8,7 @@ import com.united.coders.cmsuser.domain.exception.FormatEmailException;
 import com.united.coders.cmsuser.domain.exception.FormatPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -72,5 +73,11 @@ public class ControllerAdvisor {
     public ResponseEntity<Map<String, String>> handleFormatPasswordException(FormatPasswordException formatPasswordException) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, PASSWORD_INVALID_FORMAT_MESSAGE));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentialsException(BadCredentialsException badCredentialsException) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Collections.singletonMap(RESPONSE_ERROR_MESSAGE_KEY, BAD_CREDENTIALS_MESSAGE));
     }
 }
