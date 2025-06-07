@@ -29,8 +29,8 @@ public class UserUseCase implements IUserServicePort {
     }
 
     @Override
-    public void updateUser(User user) {
-        userPersistencePort.updateUser(user);
+    public void updateUser(User user, Long id) {
+        userPersistencePort.updateUser(user, id);
     }
 
     @Override

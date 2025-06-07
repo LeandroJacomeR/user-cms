@@ -8,6 +8,6 @@ public interface IUserPersistencePort {
     User getUser(Long id);
     List<User> getUsers();
     void createUser(User user);
-    void updateUser(User user);
+    void updateUser(User user, Long id);
     void deleteUser(Long id);
 }

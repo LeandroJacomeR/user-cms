@@ -2,6 +2,7 @@ package com.united.coders.cmsuser.configuration.security.jwt;
 
 import com.united.coders.cmsuser.adapter.driven.jpa.postgres.entity.PrincipalUser;
 import com.united.coders.cmsuser.adapter.driving.http.dto.response.JwtResponseDto;
+import com.united.coders.cmsuser.configuration.security.exception.InvalidJwtException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -17,6 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.united.coders.cmsuser.configuration.Contants.*;
 
 @Component
 public class JwtProvider {
@@ -44,7 +47,7 @@ public class JwtProvider {
                 .subject(usuarioPrincipal.getUsername())
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration * 180))
+                .expiration(new Date(System.currentTimeMillis() + expiration * 1000L))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -65,18 +68,17 @@ public class JwtProvider {
                     .build()
                     .parseSignedClaims(token);
             return true;
-        } catch (MalformedJwtException e) {
-            logger.error("token mal formado");
+        }  catch (MalformedJwtException e) {
+            throw new InvalidJwtException(MALFORMED_EXEPTION_MESSAGE);
         } catch (UnsupportedJwtException e) {
-            logger.error("token no soportado");
+            throw new InvalidJwtException(UNSOPORTED_EXEPTION_MESSAGE);
         } catch (ExpiredJwtException e) {
-            logger.error("token expirado");
+            throw new InvalidJwtException(EXPIRED_EXEPTION_MESSAGE);
         } catch (IllegalArgumentException e) {
-            logger.error("token vacío");
+            throw new InvalidJwtException(ILEGAL_EXEPTION_MESSAGE);
         } catch (SecurityException e) {
-            logger.error("fail en la firma");
+            throw new InvalidJwtException(SECURITY_EXEPTION_MESSAGE);
         }
-        return false;
     }
 
     public String refreshToken(JwtResponseDto jwtResponseDto) {

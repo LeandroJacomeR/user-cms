@@ -14,14 +14,12 @@ import com.united.coders.cmsuser.domain.model.Role;
 import com.united.coders.cmsuser.domain.model.User;
 import com.united.coders.cmsuser.domain.spi.IUserPersistencePort;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 import static com.united.coders.cmsuser.configuration.Contants.USER;
 
-@RequiredArgsConstructor
 @Transactional
 public class UserPostgresAdapter implements IUserPersistencePort {
 
@@ -32,6 +30,14 @@ public class UserPostgresAdapter implements IUserPersistencePort {
     private final IRoleEntityMapper roleEntityMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    public UserPostgresAdapter(IUserRepository userRepository, IUserEntityMapper userEntityMapper, IRoleRepository roleRepository, IRoleEntityMapper roleEntityMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userEntityMapper = userEntityMapper;
+        this.roleRepository = roleRepository;
+        this.roleEntityMapper = roleEntityMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public User getUser(Long id) {
@@ -66,19 +72,21 @@ public class UserPostgresAdapter implements IUserPersistencePort {
     }
 
     @Override
-    public void updateUser(User user) {
-        UserEntity existingUser = userRepository.findById(user.getId())
+    public void updateUser(User user, Long id) {
+        UserEntity existingUser = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
-        if (!existingUser.getEmail().equals(user.getEmail()) &&
-                userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException();
+        if (user.getEmail() != null && !existingUser.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(user.getEmail())) {
+                throw new UserAlreadyExistsException();
+            }
+            existingUser.setEmail(user.getEmail());
         }
-
-        if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
         if (user.getName() != null) existingUser.setName(user.getName());
         if (user.getRole() != null) existingUser.setRole(roleEntityMapper.toEntity(user.getRole()));
-        if (user.getPassword() != null) existingUser.setPassword(user.getPassword());
+        if (user.getPassword() != null) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 
         userRepository.save(existingUser);
     }

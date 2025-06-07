@@ -16,8 +16,8 @@ public class User {
     private Role role;
 
     public User(Long id, String name, String email, String password, Role role) {
-        if (!Pattern.matches(REGEX_EMAIL, email)) throw new FormatEmailException();
-        if (!Pattern.matches(REGEX_PASSWORD, password)) throw new FormatPasswordException();
+        if (email != null && !Pattern.matches(REGEX_EMAIL, email)) throw new FormatEmailException();
+        if (password != null && !Pattern.matches(REGEX_PASSWORD, password)) throw new FormatPasswordException();
         this.id = id;
         this.name = name;
         this.email = email;

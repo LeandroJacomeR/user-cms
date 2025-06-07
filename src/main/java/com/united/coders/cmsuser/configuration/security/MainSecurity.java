@@ -49,7 +49,16 @@ public class MainSecurity {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/auth/register", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health", "/person/").permitAll()
+                        .requestMatchers(
+                                "/auth/**",
+                                "/swagger-ui/**",         // Permite acceso libre a Swagger
+                                "/v3/api-docs/**",        // Permite acceso a OpenAPI JSON
+                                "/swagger-resources/**",
+                                "/configuration/**",
+                                "/webjars/**",
+                                "/actuator/health",       // Solo health para Actuator
+                                "/person/**"              // Tus endpoints públicos
+                        ).permitAll()
                         .requestMatchers("/user").hasRole(ADMIN)
                         .anyRequest().authenticated()
                 )

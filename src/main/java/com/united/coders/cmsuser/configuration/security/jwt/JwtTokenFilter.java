@@ -1,6 +1,7 @@
 package com.united.coders.cmsuser.configuration.security.jwt;
 
 import com.united.coders.cmsuser.adapter.driven.jpa.postgres.adapter.UserDetailsServiceImpl;
+import com.united.coders.cmsuser.configuration.security.exception.InvalidJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.united.coders.cmsuser.configuration.Contants.ILEGAL_EXEPTION_MESSAGE;
+
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -25,33 +28,45 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
-    private List<String> excludedPrefixes = Arrays.asList("/auth/**", "/swagger-ui/**", "/actuator/**", "/person/");
+    private final List<String> excludedPatterns = Arrays.asList(
+            "/auth/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/configuration/**",
+            "/webjars/**",
+            "/actuator/**",
+            "/person/**"
+    );
     private AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain)
             throws ServletException, IOException {
-        String token = getToken(req);
-        if (token != null && jwtProvider.validateToken(token)) {
-            String nombreUsuario = jwtProvider.getNombreUsuarioFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(nombreUsuario);
+        try {
+            String token = getToken(req);
+            if (token == null) throw new InvalidJwtException(ILEGAL_EXEPTION_MESSAGE);
+            if (jwtProvider.validateToken(token)) {
+                String nombreUsuario = jwtProvider.getNombreUsuarioFromToken(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(nombreUsuario);
 
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null,
-                    userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+            filterChain.doFilter(req, res);
+        } catch (InvalidJwtException e) {
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.setContentType("application/json");
+            res.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
         }
-        filterChain.doFilter(req, res);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String currentRoute = request.getServletPath();
-        for (String prefix : excludedPrefixes) {
-            if (pathMatcher.matchStart(prefix, currentRoute)) {
-                return true;
-            }
-        }
-        return false;
+        String path = request.getServletPath();
+        return excludedPatterns.stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
     private String getToken(HttpServletRequest request) {

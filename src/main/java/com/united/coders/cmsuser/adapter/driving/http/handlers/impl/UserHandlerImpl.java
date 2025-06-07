@@ -36,8 +36,8 @@ public class UserHandlerImpl implements IUserHandler {
     }
 
     @Override
-    public void updateUser(UserRequestDto user) {
-        userServicePort.updateUser(userRequestMapper.toUser(user));
+    public void updateUser(UserRequestDto user, Long id) {
+        userServicePort.updateUser(userRequestMapper.toUser(user), id);
     }
 
     @Override

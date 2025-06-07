@@ -10,6 +10,6 @@ public interface IUserHandler {
     UserResponseDto getUser(Long id);
     List<UserResponseDto> getUsers();
     void createUser(UserRequestDto user);
-    void updateUser(UserRequestDto user);
+    void updateUser(UserRequestDto user, Long id);
     void deleteUser(Long id);
 }
