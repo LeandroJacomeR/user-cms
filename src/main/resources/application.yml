@@ -9,7 +9,7 @@ spring:
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 5
-    pa:
+    jpa:
       database-platform: org.hibernate.dialect.PostgreSQLDialect
       hibernate:
         ddl-auto: update
